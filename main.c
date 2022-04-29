@@ -7,18 +7,19 @@
 #define HEIGHT 18
 #define WIDTH 18
 
-int PlayerPositionX, PlayerPositionY; // Player position
-int MonsterPositionX, MonsterPositionY; // Monster position
-int ExitPositionX, ExitPositionY;
+int PlayerPositionRow, PlayerPositionColumn; // Player position
+int MonsterPositionRow, MonsterPositionColumn; // Monster position
+int ExitPositionRow, ExitPositionColumn;
+int DistanceMonsterPlayer, DistanceMonsterExit;
 
 bool PlayerPositionHasChanged;
 
 
-unsigned char maze[HEIGHT][WIDTH] = {{'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'}, //0
-                                     {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, //1
-                                     {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, //2
-                                     {'#', ' ', ' ', '#', ' ', ' ', ' ', '#', '#', '#', ' ', ' ', ' ', '#', ' ', ' ', ' ', '#'}, //3
-                                     {'#', 'M', ' ', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#', ' ', ' ', ' ', '#'}, //4
+unsigned char maze[WIDTH][HEIGHT] = {{'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'}, //0
+                                     {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, //1
+                                     {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, //2
+                                     {'#', ' ', ' ', '#', ' ', ' ', ' ', ' ', '#', '#', '#', ' ', ' ', ' ', '#', ' ', ' ', '#'}, //3
+                                     {'#', ' ', ' ', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#', ' ', ' ', '#'}, //4
                                      {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, //5
                                      {'#', ' ', ' ', ' ', ' ', ' ', ' ', '#', '#', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, //6
                                      {'#', ' ', ' ', ' ', ' ', ' ', ' ', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, //7
@@ -30,7 +31,7 @@ unsigned char maze[HEIGHT][WIDTH] = {{'#', '#', '#', '#', '#', '#', '#', '#', '#
                                      {'#', ' ', ' ', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, //13
                                      {'#', ' ', ' ', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, //14
                                      {'#', ' ', ' ', '#', '#', '#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, //15
-                                     {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'P', ' ', ' ', ' ', '#'}, //16
+                                     {'#', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '#'}, //16
                                      {'#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'} //17
 };
 
@@ -43,8 +44,8 @@ int action() {
 
 void grid() {
     int i, j;
-    for (i = 0; i < HEIGHT; i++) {
-        for (j = 0; j < WIDTH; j++) {
+    for (i = 0; i < WIDTH; i++) {
+        for (j = 0; j < HEIGHT; j++) {
             switch (maze[i][j]) {
                 case '#':
                     printf("\u2588"); // Prints a block
@@ -67,59 +68,51 @@ void grid() {
     }
 }
 
-void playerMove(int posX, int posY) {
+void playerMove(int posRow, int posColumn) {
+    PlayerPositionHasChanged = false;
+
+    // When Caps Lock is on, the player also can move up and down
     switch (action()) {
         case 87:
         case 119: // W
-            if (maze[posX - 1][posY] != '#') {
-                maze[posX][posY] = ' ';
-                maze[posX - 1][posY] = 'P';
-                PlayerPositionX--;
+            if (maze[posRow - 1][posColumn] != '#') {
+                maze[posRow][posColumn] = ' ';
+                maze[posRow - 1][posColumn] = 'P';
+                PlayerPositionRow--;
                 PlayerPositionHasChanged = true;
-            } else {
-                PlayerPositionHasChanged = false;
             }
             break;
         case 65:
         case 97: // A
-            if (maze[posX][posY - 1] != '#') {
-                maze[posX][posY] = ' ';
-                maze[posX][posY - 1] = 'P';
-                PlayerPositionY--;
+            if (maze[posRow][posColumn - 1] != '#') {
+                maze[posRow][posColumn] = ' ';
+                maze[posRow][posColumn - 1] = 'P';
+                PlayerPositionColumn--;
                 PlayerPositionHasChanged = true;
-            } else {
-                PlayerPositionHasChanged = false;
             }
             break;
         case 83:
         case 115: // S
-            if (maze[posX + 1][posY] != '#') {
-                maze[posX][posY] = ' ';
-                maze[posX + 1][posY] = 'P';
-                PlayerPositionX++;
+            if (maze[posRow + 1][posColumn] != '#') {
+                maze[posRow][posColumn] = ' ';
+                maze[posRow + 1][posColumn] = 'P';
+                PlayerPositionRow++;
                 PlayerPositionHasChanged = true;
-            } else {
-                PlayerPositionHasChanged = false;
             }
             break;
         case 68:
         case 100: // D
-            if (maze[posX][posY + 1] != '#') {
-                maze[posX][posY] = ' ';
-                maze[posX][posY + 1] = 'P';
-                PlayerPositionY++;
+            if (maze[posRow][posColumn + 1] != '#') {
+                maze[posRow][posColumn] = ' ';
+                maze[posRow][posColumn + 1] = 'P';
+                PlayerPositionColumn++;
                 PlayerPositionHasChanged = true;
-            } else {
-                PlayerPositionHasChanged = false;
             }
-            break;
-        default:
-            PlayerPositionHasChanged = false;
             break;
     }
 }
 
-void EasyMonsterMove(int posX, int posY) {
+void EasyMonsterMove(int posRow, int posColumn) {
     if (PlayerPositionHasChanged == false) {
         return;
     }
@@ -127,100 +120,120 @@ void EasyMonsterMove(int posX, int posY) {
     int move = rand() % 4;
 
     switch (move) {
-        case 0:
-            if (maze[posX - 1][posY] != '#') {
-                maze[posX][posY] = ' ';
-                maze[posX - 1][posY] = 'M';
-                MonsterPositionX--;
+        case 0: // W
+            if (maze[posRow - 1][posColumn] != '#') {
+                maze[posRow][posColumn] = ' ';
+                maze[posRow - 1][posColumn] = 'M';
+                MonsterPositionRow--;
             } else {
-                EasyMonsterMove(posX, posY);
+                EasyMonsterMove(posRow, posColumn);
             }
             break;
-        case 1:
-            if (maze[posX][posY - 1] != '#') {
-                maze[posX][posY] = ' ';
-                maze[posX][posY - 1] = 'M';
-                MonsterPositionY--;
+        case 1: // A
+            if (maze[posRow][posColumn - 1] != '#') {
+                maze[posRow][posColumn] = ' ';
+                maze[posRow][posColumn - 1] = 'M';
+                MonsterPositionColumn--;
             } else {
-                EasyMonsterMove(posX, posY);
+                EasyMonsterMove(posRow, posColumn);
             }
             break;
-        case 2:
-            if (maze[posX + 1][posY] != '#') {
-                maze[posX][posY] = ' ';
-                maze[posX + 1][posY] = 'M';
-                MonsterPositionX++;
+        case 2: // S
+            if (maze[posRow + 1][posColumn] != '#') {
+                maze[posRow][posColumn] = ' ';
+                maze[posRow + 1][posColumn] = 'M';
+                MonsterPositionRow++;
             } else {
-                EasyMonsterMove(posX, posY);
+                EasyMonsterMove(posRow, posColumn);
             }
             break;
-        case 3:
-            if (maze[posX][posY + 1] != '#') {
-                maze[posX][posY] = ' ';
-                maze[posX][posY + 1] = 'M';
-                MonsterPositionY++;
+        case 3: // D
+            if (maze[posRow][posColumn + 1] != '#') {
+                maze[posRow][posColumn] = ' ';
+                maze[posRow][posColumn + 1] = 'M';
+                MonsterPositionColumn++;
             } else {
-                EasyMonsterMove(posX, posY);
+                EasyMonsterMove(posRow, posColumn);
             }
             break;
     }
 }
 
-
 void setInitialPlayerPosition() {
-    for (int i = 0; i < HEIGHT; i++) {
-        for (int j = 0; j < WIDTH; j++) {
-            if (maze[i][j] == 'P') {
-                PlayerPositionX = i;
-                PlayerPositionY = j;
-            }
-        }
-    }
+    int i, j;
+    bool validCell = false;
+
+    PlayerPositionRow = 1;
+    PlayerPositionColumn = 5;
+    maze[PlayerPositionRow][PlayerPositionColumn] = 'P';
+
+
+//    while (!validCell) {
+//        i = rand() % (WIDTH - 2) + 1;
+//        j = rand() % (HEIGHT - 2) + 1;
+//        if (maze[i][j] == ' ') {
+//            validCell = true;
+//            maze[i][j] = 'P';
+//            PlayerPositionRow = i;
+//            PlayerPositionColumn = j;
+//            break;
+//        }
+//    }
 }
 
 void setInitialMonsterPosition() {
-    for (int i = 0; i < HEIGHT; i++) {
-        for (int j = 0; j < WIDTH; j++) {
-            while (maze[i][j] != '#' || maze[i][j] != 'P' || maze[i][j] != 'E') {
-                
+    int k, l, p;
+    while (1) {
+        k = rand() % (WIDTH - 2) + 1; // 1 to 16
+        p = rand() % 16 + 17; // 16 to 32
+        l = p - k;
 
+        MonsterPositionRow = PlayerPositionRow + k;
+        MonsterPositionColumn = abs(PlayerPositionColumn - l);
+
+        if (maze[MonsterPositionRow][MonsterPositionColumn] == ' ') {
+            DistanceMonsterPlayer = abs(PlayerPositionRow - MonsterPositionRow) + abs(PlayerPositionColumn - MonsterPositionColumn);
+            DistanceMonsterExit = abs(ExitPositionRow - MonsterPositionRow) + abs(ExitPositionColumn - MonsterPositionColumn);
+            if (DistanceMonsterPlayer < 16 && DistanceMonsterExit < 16) {
+                continue;
             }
+            maze[MonsterPositionRow][MonsterPositionColumn] = 'M';
+            break;
         }
     }
 }
 
 void setInitialExitPosition() {
-    for (int i = 0; i < HEIGHT; i++) {
-        for (int j = 0; j < WIDTH; j++) {
+    for (int i = 0; i < WIDTH; i++) {
+        for (int j = 0; j < HEIGHT; j++) {
             if (maze[i][j] == 'E') {
-                ExitPositionX = i;
-                ExitPositionY = j;
+                ExitPositionRow = i;
+                ExitPositionColumn = j;
             }
         }
     }
 }
 
-
 int main() {
     system("chcp 65001"); // Set console encoding to UTF-8
     system("cls");
     srand(time(NULL)); // Seed the random number generator
-    grid();
+    setInitialExitPosition(); // Set the exit position
     setInitialPlayerPosition(); // Set the player position
     setInitialMonsterPosition(); // Set the monster position
-    setInitialExitPosition(); // Set the exit position
+    grid(); // Print the grid
     while (1) {
-        playerMove(PlayerPositionX, PlayerPositionY);
-        EasyMonsterMove(MonsterPositionX, MonsterPositionY);
+        playerMove(PlayerPositionRow, PlayerPositionColumn);
+        EasyMonsterMove(MonsterPositionRow, MonsterPositionColumn);
         system("cls");
         grid();
-        if (PlayerPositionX == MonsterPositionX && PlayerPositionY == MonsterPositionY) {
+        if (!DistanceMonsterPlayer) {
             system("cls");
             printf("You lost!\n");
             getchar();
             break;
         }
-        if (PlayerPositionX == ExitPositionX && PlayerPositionY == ExitPositionY) {
+        if (PlayerPositionRow == ExitPositionRow && PlayerPositionColumn == ExitPositionColumn) {
             system("cls");
             printf("You won!\n");
             getchar();
