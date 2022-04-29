@@ -110,7 +110,6 @@ void playerMove(int posRow, int posColumn) {
             }
             break;
     }
-   printf("%d %d %d %d\n", PlayerPositionRow, PlayerPositionColumn, MonsterPositionRow, MonsterPositionColumn);
 }
 
 void EasyMonsterMove(int posRow, int posColumn) {
@@ -158,7 +157,7 @@ void EasyMonsterMove(int posRow, int posColumn) {
             }
             break;
     }
-    printf("%d %d %d %d\n", PlayerPositionRow, PlayerPositionColumn, MonsterPositionRow, MonsterPositionColumn);
+    printf("%d %d\n", MonsterPositionRow, MonsterPositionColumn);
 }
 
 void setInitialPlayerPosition() {
@@ -235,9 +234,8 @@ int main() {
     while (1) {
         playerMove(PlayerPositionRow, PlayerPositionColumn);
         EasyMonsterMove(MonsterPositionRow, MonsterPositionColumn);
-        //system("cls");
+        system("cls");
         grid();
-//        printf("%d %d %d %d\n", PlayerPositionRow, PlayerPositionColumn, MonsterPositionRow, MonsterPositionColumn);
         if (checkWin_Lose() == 0) {
             system("cls");
             printf("You won!\n");
