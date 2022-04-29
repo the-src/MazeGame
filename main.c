@@ -234,7 +234,7 @@ int main() {
     while (1) {
         playerMove(PlayerPositionRow, PlayerPositionColumn);
         EasyMonsterMove(MonsterPositionRow, MonsterPositionColumn);
-        system("cls");
+        //system("cls");
         grid();
         if (checkWin_Lose() == 0) {
             system("cls");
