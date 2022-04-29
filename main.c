@@ -10,7 +10,7 @@
 int PlayerPositionRow, PlayerPositionColumn; // Player position
 int MonsterPositionRow, MonsterPositionColumn; // Monster position
 int ExitPositionRow, ExitPositionColumn;
-int DistanceMonsterPlayer, DistanceMonsterExit;
+int DistanceMonsterPlayer, DistancePlayerExit;
 
 bool PlayerPositionHasChanged;
 
@@ -163,39 +163,43 @@ void setInitialPlayerPosition() {
     int i, j;
     bool validCell = false;
 
-    while (!validCell) {
+    do {
         i = rand() % (WIDTH - 2) + 1;
         j = rand() % (HEIGHT - 2) + 1;
+        DistancePlayerExit = abs(i - ExitPositionRow) + abs(j - ExitPositionColumn);
+
         if (maze[i][j] == ' ') {
-            validCell = true;
             maze[i][j] = 'P';
             PlayerPositionRow = i;
             PlayerPositionColumn = j;
-            break;
+            if (DistancePlayerExit > 16) {
+                validCell = true;
+                break;
+            }
         }
-    }
+    } while (!validCell);
 }
 
 void setInitialMonsterPosition() {
-    int k, l, p;
-    while (1) {
-        k = rand() % (WIDTH - 2) + 1; // 1 to 16
-        p = rand() % 16 + 17; // 16 to 32
-        l = p - k;
+    int i, j;
+    bool validCell = false;
 
-        MonsterPositionRow = PlayerPositionRow + k;
-        MonsterPositionColumn = abs(PlayerPositionColumn - l);
+    do {
+        i = rand() % (WIDTH - 2) + 1;
+        j = rand() % (HEIGHT - 2) + 1;
+        DistanceMonsterPlayer = abs(PlayerPositionRow - i) + abs(PlayerPositionColumn - j);
 
-        if (maze[MonsterPositionRow][MonsterPositionColumn] == ' ') {
-            DistanceMonsterPlayer = abs(PlayerPositionRow - MonsterPositionRow) + abs(PlayerPositionColumn - MonsterPositionColumn);
-            DistanceMonsterExit = abs(ExitPositionRow - MonsterPositionRow) + abs(ExitPositionColumn - MonsterPositionColumn);
-            if (DistanceMonsterPlayer > 16 && DistanceMonsterExit > 16) {
-                continue;
+        if (maze[i][j] == ' ') {
+            validCell = true;
+            maze[i][j] = 'M';
+            MonsterPositionRow = i;
+            MonsterPositionColumn = j;
+            if (DistanceMonsterPlayer > 16) {
+                validCell = true;
+                break;
             }
-            maze[MonsterPositionRow][MonsterPositionColumn] = 'M';
-            break;
         }
-    }
+    } while (!validCell);
 }
 
 void setInitialExitPosition() {
@@ -222,7 +226,7 @@ int main() {
         EasyMonsterMove(MonsterPositionRow, MonsterPositionColumn);
         system("cls");
         grid();
-        printf("%d %d", DistanceMonsterExit, DistanceMonsterPlayer);
+        printf("%d %d", DistancePlayerExit, DistanceMonsterPlayer);
         if (!DistanceMonsterPlayer) {
             system("cls");
             printf("You lost!\n");
