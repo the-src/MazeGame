@@ -110,6 +110,7 @@ void playerMove(int posRow, int posColumn) {
             }
             break;
     }
+   printf("%d %d %d %d\n", PlayerPositionRow, PlayerPositionColumn, MonsterPositionRow, MonsterPositionColumn);
 }
 
 void EasyMonsterMove(int posRow, int posColumn) {
@@ -157,6 +158,7 @@ void EasyMonsterMove(int posRow, int posColumn) {
             }
             break;
     }
+    printf("%d %d %d %d\n", PlayerPositionRow, PlayerPositionColumn, MonsterPositionRow, MonsterPositionColumn);
 }
 
 void setInitialPlayerPosition() {
@@ -169,10 +171,10 @@ void setInitialPlayerPosition() {
         DistancePlayerExit = abs(i - ExitPositionRow) + abs(j - ExitPositionColumn);
 
         if (maze[i][j] == ' ') {
-            maze[i][j] = 'P';
-            PlayerPositionRow = i;
-            PlayerPositionColumn = j;
             if (DistancePlayerExit > 16) {
+                maze[i][j] = 'P';
+                PlayerPositionRow = i;
+                PlayerPositionColumn = j;
                 validCell = true;
                 break;
             }
@@ -190,11 +192,10 @@ void setInitialMonsterPosition() {
         DistanceMonsterPlayer = abs(PlayerPositionRow - i) + abs(PlayerPositionColumn - j);
 
         if (maze[i][j] == ' ') {
-            validCell = true;
-            maze[i][j] = 'M';
-            MonsterPositionRow = i;
-            MonsterPositionColumn = j;
             if (DistanceMonsterPlayer > 16) {
+                maze[i][j] = 'M';
+                MonsterPositionRow = i;
+                MonsterPositionColumn = j;
                 validCell = true;
                 break;
             }
@@ -213,6 +214,16 @@ void setInitialExitPosition() {
     }
 }
 
+int checkWin_Lose() {
+    if (PlayerPositionRow == ExitPositionRow && PlayerPositionRow == ExitPositionColumn) {
+        return 0;
+    } else if (PlayerPositionRow == MonsterPositionRow && PlayerPositionColumn == MonsterPositionColumn) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
 int main() {
     system("chcp 65001"); // Set console encoding to UTF-8
     system("cls");
@@ -224,18 +235,17 @@ int main() {
     while (1) {
         playerMove(PlayerPositionRow, PlayerPositionColumn);
         EasyMonsterMove(MonsterPositionRow, MonsterPositionColumn);
-        system("cls");
+        //system("cls");
         grid();
-        printf("%d %d", DistancePlayerExit, DistanceMonsterPlayer);
-        if (!DistanceMonsterPlayer) {
-            system("cls");
-            printf("You lost!\n");
-            getchar();
-            break;
-        }
-        if (PlayerPositionRow == ExitPositionRow && PlayerPositionColumn == ExitPositionColumn) {
+//        printf("%d %d %d %d\n", PlayerPositionRow, PlayerPositionColumn, MonsterPositionRow, MonsterPositionColumn);
+        if (checkWin_Lose() == 0) {
             system("cls");
             printf("You won!\n");
+            getchar();
+            break;
+        } else if (!checkWin_Lose() == 1) {
+            system("cls");
+            printf("You lost!\n");
             getchar();
             break;
         }
