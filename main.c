@@ -10,7 +10,7 @@
 int PlayerPositionRow, PlayerPositionColumn; // Player position
 int MonsterPositionRow, MonsterPositionColumn; // Monster position
 int ExitPositionRow, ExitPositionColumn;
-int DistanceMonsterPlayer, DistancePlayerExit;
+int DistanceMonsterPlayer, DistancePlayerExit, DistanceMonsterPlayerOld;
 
 bool PlayerPositionHasChanged;
 
@@ -65,6 +65,39 @@ void grid() {
             }
         }
         printf("\n");
+    }
+}
+
+void Menu(){
+    printf("                                                                                                                                                                            \n"
+           "                                                                                                                                                                            \n"
+           "           .              __.....__                __  __   ___                             __.....__                                   __  __   ___         __.....__      \n"
+           "         .'|          .-''         '.             |  |/  `.'   `.                       .-''         '.               .--./)           |  |/  `.'   `.   .-''         '.    \n"
+           "     .| <  |         /     .-''\"'-.  `.           |   .-.  .-.   '                     /     .-''\"'-.  `.            /.''\\\\            |   .-.  .-.   ' /     .-''\"'-.  `.  \n"
+           "   .' |_ | |        /     /________\\   \\          |  |  |  |  |  |    __              /     /________\\   \\          | |  | |      __   |  |  |  |  |  |/     /________\\   \\ \n"
+           " .'     || | .'''-. |                  |          |  |  |  |  |  | .:--.'.  .--------.|                  |           \\`-' /    .:--.'. |  |  |  |  |  ||                  | \n"
+           "'--.  .-'| |/.'''. \\\\    .-------------'          |  |  |  |  |  |/ |   \\ | |____    |\\    .-------------'           /(\"'`    / |   \\ ||  |  |  |  |  |\\    .-------------' \n"
+           "   |  |  |  /    | | \\    '-.____...---.          |  |  |  |  |  |`\" __ | |     /   /  \\    '-.____...---.           \\ '---.  `\" __ | ||  |  |  |  |  | \\    '-.____...---. \n"
+           "   |  |  | |     | |  `.             .'           |__|  |__|  |__| .'.''| |   .'   /    `.             .'             /'\"\"'.\\  .'.''| ||__|  |__|  |__|  `.             .'  \n"
+           "   |  '.'| |     | |    `''-...... -'                             / /   | |_ /    /___    `''-...... -'              ||     ||/ /   | |_                   `''-...... -'    \n"
+           "   |   / | '.    | '.                                             \\ \\._,\\ '/|         |                              \\'. __// \\ \\._,\\ '/                                    \n"
+           "   `'-'  '---'   '---'                                             `--'  `\" |_________|                               `'---'   `--'  `\"                                     ");
+    printf("\n\n\n\t\t\t\t\t\t\t\t\t\tCoded by Yusuf Saraclioglu");
+}
+
+void MonsterCatchPlayer() {
+    PlayerPositionRow = MonsterPositionRow;
+    PlayerPositionColumn = MonsterPositionColumn;
+}
+
+
+int checkWin_Lose() {
+    if (PlayerPositionRow == ExitPositionRow && PlayerPositionColumn == ExitPositionColumn) {
+        return 1;
+    } else if (PlayerPositionRow == MonsterPositionRow && PlayerPositionColumn == MonsterPositionColumn) {
+        return 2;
+    } else {
+        return 0;
     }
 }
 
@@ -123,6 +156,10 @@ void EasyMonsterMove(int posRow, int posColumn) {
         case 0: // W
             if (maze[posRow - 1][posColumn] != '#') {
                 maze[posRow][posColumn] = ' ';
+                if (maze[posRow - 1][posColumn] == 'P') {
+                    MonsterCatchPlayer();
+                    break;
+                }
                 maze[posRow - 1][posColumn] = 'M';
                 MonsterPositionRow--;
             } else {
@@ -132,6 +169,10 @@ void EasyMonsterMove(int posRow, int posColumn) {
         case 1: // A
             if (maze[posRow][posColumn - 1] != '#') {
                 maze[posRow][posColumn] = ' ';
+                if (maze[posRow][posColumn - 1] == 'P') {
+                    MonsterCatchPlayer();
+                    break;
+                }
                 maze[posRow][posColumn - 1] = 'M';
                 MonsterPositionColumn--;
             } else {
@@ -141,6 +182,10 @@ void EasyMonsterMove(int posRow, int posColumn) {
         case 2: // S
             if (maze[posRow + 1][posColumn] != '#') {
                 maze[posRow][posColumn] = ' ';
+                if (maze[posRow + 1][posColumn] == 'P') {
+                    MonsterCatchPlayer();
+                    break;
+                }
                 maze[posRow + 1][posColumn] = 'M';
                 MonsterPositionRow++;
             } else {
@@ -150,6 +195,10 @@ void EasyMonsterMove(int posRow, int posColumn) {
         case 3: // D
             if (maze[posRow][posColumn + 1] != '#') {
                 maze[posRow][posColumn] = ' ';
+                if (maze[posRow][posColumn + 1] == 'P') {
+                    MonsterCatchPlayer();
+                    break;
+                }
                 maze[posRow][posColumn + 1] = 'M';
                 MonsterPositionColumn++;
             } else {
@@ -157,7 +206,75 @@ void EasyMonsterMove(int posRow, int posColumn) {
             }
             break;
     }
-    printf("%d %d\n", MonsterPositionRow, MonsterPositionColumn);
+}
+
+void HardMonsterMove(int posRow, int posColumn) {
+    if (PlayerPositionHasChanged == false) {
+        return;
+    }
+    DistanceMonsterPlayerOld = abs(posRow - PlayerPositionRow) + abs(posColumn - PlayerPositionColumn);
+
+    int move = rand() % 4;
+
+    switch (move) {
+        case 0: // W
+            if (maze[posRow - 1][posColumn] != '#') {
+                maze[posRow][posColumn] = ' ';
+                if (maze[posRow - 1][posColumn] == 'P') {
+                    MonsterCatchPlayer();
+                    break;
+                }
+                maze[posRow - 1][posColumn] = 'M';
+                MonsterPositionRow--;
+            } else {
+                HardMonsterMove(posRow, posColumn);
+            }
+            break;
+        case 1: // A
+            if (maze[posRow][posColumn - 1] != '#') {
+                maze[posRow][posColumn] = ' ';
+                if (maze[posRow][posColumn - 1] == 'P') {
+                    MonsterCatchPlayer();
+                    break;
+                }
+                maze[posRow][posColumn - 1] = 'M';
+                MonsterPositionColumn--;
+            } else {
+                HardMonsterMove(posRow, posColumn);
+            }
+            break;
+        case 2: // S
+            if (maze[posRow + 1][posColumn] != '#') {
+                maze[posRow][posColumn] = ' ';
+                if (maze[posRow + 1][posColumn] == 'P') {
+                    MonsterCatchPlayer();
+                    break;
+                }
+                maze[posRow + 1][posColumn] = 'M';
+                MonsterPositionRow++;
+            } else {
+                HardMonsterMove(posRow, posColumn);
+            }
+            break;
+        case 3: // D
+            if (maze[posRow][posColumn + 1] != '#') {
+                maze[posRow][posColumn] = ' ';
+                if (maze[posRow][posColumn + 1] == 'P') {
+                    MonsterCatchPlayer();
+                    break;
+                }
+                maze[posRow][posColumn + 1] = 'M';
+                MonsterPositionColumn++;
+            } else {
+                HardMonsterMove(posRow, posColumn);
+            }
+            // Initialize the distance between the monster and the player at every move of the monster
+            DistanceMonsterPlayer = abs(PlayerPositionRow - MonsterPositionRow) + abs(PlayerPositionColumn - MonsterPositionColumn);
+            if (DistanceMonsterPlayer >= DistanceMonsterPlayerOld) {
+                HardMonsterMove(posRow, posColumn);
+            }
+            break;
+    }
 }
 
 void setInitialPlayerPosition() {
@@ -213,16 +330,6 @@ void setInitialExitPosition() {
     }
 }
 
-int checkWin_Lose() {
-    if (PlayerPositionRow == ExitPositionRow && PlayerPositionRow == ExitPositionColumn) {
-        return 0;
-    } else if (PlayerPositionRow == MonsterPositionRow && PlayerPositionColumn == MonsterPositionColumn) {
-        return 1;
-    } else {
-        return 2;
-    }
-}
-
 int main() {
     system("chcp 65001"); // Set console encoding to UTF-8
     system("cls");
@@ -232,16 +339,19 @@ int main() {
     setInitialMonsterPosition(); // Set the monster position
     grid(); // Print the grid
     while (1) {
+        Menu(); // Print the menu
         playerMove(PlayerPositionRow, PlayerPositionColumn);
-        EasyMonsterMove(MonsterPositionRow, MonsterPositionColumn);
-        //system("cls");
+        //EasyMonsterMove(MonsterPositionRow, MonsterPositionColumn);
+        HardMonsterMove(MonsterPositionRow, MonsterPositionColumn);
+        //printf("%d %d\n", DistanceMonsterPlayerOld, DistanceMonsterPlayer);
+        system("cls");
         grid();
-        if (checkWin_Lose() == 0) {
+        if (checkWin_Lose() == 1) {
             system("cls");
             printf("You won!\n");
             getchar();
             break;
-        } else if (!checkWin_Lose() == 1) {
+        } else if (checkWin_Lose() == 2) {
             system("cls");
             printf("You lost!\n");
             getchar();
@@ -250,4 +360,3 @@ int main() {
     }
     return 0;
 }
-
