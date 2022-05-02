@@ -27,8 +27,8 @@
 #define HEIGHT 18
 #define WIDTH 18
 
-int PlayerPositionRow, PlayerPositionColumn; // Player position
-int MonsterPositionRow, MonsterPositionColumn; // Monster position
+static int PlayerPositionRow, PlayerPositionColumn; // Player position
+static int MonsterPositionRow, MonsterPositionColumn; // Monster position
 int ExitPositionRow, ExitPositionColumn;
 int DistanceMonsterPlayer, DistancePlayerExit, DistanceMonsterPlayerOld;
 
@@ -138,6 +138,7 @@ int checkWin_Lose() {
         if (input == 'Y' || input == 'y') {
             system("cls");
             maze[MonsterPositionRow][MonsterPositionColumn] = ' ';
+            maze[PlayerPositionRow][PlayerPositionColumn] = ' ';
             Menu();
         } else {
             exit(0);
@@ -155,6 +156,7 @@ int checkWin_Lose() {
         if (input == 'Y' || input == 'y') {
             system("cls");
             maze[MonsterPositionRow][MonsterPositionColumn] = ' ';
+            maze[PlayerPositionRow][PlayerPositionColumn] = ' ';
             Menu();
         } else {
             exit(0);
@@ -186,6 +188,10 @@ void playerMove(int posRow, int posColumn) {
         case 119: // W
             if (maze[posRow - 1][posColumn] != '#') {
                 maze[posRow][posColumn] = ' ';
+                if (maze[posRow - 1][posColumn] == 'M') {
+                    MonsterCatchPlayer(); // If the player moves to the same position as the monster, the monster will catch the player
+                    break;
+                }
                 maze[posRow - 1][posColumn] = 'P';
                 PlayerPositionRow--;
                 PlayerPositionHasChanged = true;
@@ -195,6 +201,10 @@ void playerMove(int posRow, int posColumn) {
         case 97: // A
             if (maze[posRow][posColumn - 1] != '#') {
                 maze[posRow][posColumn] = ' ';
+                if (maze[posRow][posColumn - 1] == 'M') {
+                    MonsterCatchPlayer(); // If the player moves to the same position as the monster, the monster will catch the player
+                    break;
+                }
                 maze[posRow][posColumn - 1] = 'P';
                 PlayerPositionColumn--;
                 PlayerPositionHasChanged = true;
@@ -204,6 +214,10 @@ void playerMove(int posRow, int posColumn) {
         case 115: // S
             if (maze[posRow + 1][posColumn] != '#') {
                 maze[posRow][posColumn] = ' ';
+                if (maze[posRow + 1][posColumn] == 'M') {
+                    MonsterCatchPlayer(); // If the player moves to the same position as the monster, the monster will catch the player
+                    break;
+                }
                 maze[posRow + 1][posColumn] = 'P';
                 PlayerPositionRow++;
                 PlayerPositionHasChanged = true;
@@ -213,6 +227,10 @@ void playerMove(int posRow, int posColumn) {
         case 100: // D
             if (maze[posRow][posColumn + 1] != '#') {
                 maze[posRow][posColumn] = ' ';
+                if (maze[posRow][posColumn + 1] == 'M') {
+                    MonsterCatchPlayer(); // If the player moves to the same position as the monster, the monster will catch the player
+                    break;
+                }
                 maze[posRow][posColumn + 1] = 'P';
                 PlayerPositionColumn++;
                 PlayerPositionHasChanged = true;
@@ -226,11 +244,9 @@ void EasyMonsterMove(int posRow, int posColumn) {
     if (PlayerPositionHasChanged == false) {
         return;
     }
-
-    int move = rand() % 4;
-
+    int move = rand() % 4 + 1; // Randomly choose a direction to move
     switch (move) {
-        case 0: // W
+        case 1: // W
             if (maze[posRow - 1][posColumn] != '#') {
                 maze[posRow][posColumn] = ' ';
                 if (maze[posRow - 1][posColumn] == 'P') {
@@ -243,7 +259,7 @@ void EasyMonsterMove(int posRow, int posColumn) {
                 EasyMonsterMove(posRow, posColumn);
             }
             break;
-        case 1: // A
+        case 2: // A
             if (maze[posRow][posColumn - 1] != '#') {
                 maze[posRow][posColumn] = ' ';
                 if (maze[posRow][posColumn - 1] == 'P') {
@@ -256,7 +272,7 @@ void EasyMonsterMove(int posRow, int posColumn) {
                 EasyMonsterMove(posRow, posColumn);
             }
             break;
-        case 2: // S
+        case 3: // S
             if (maze[posRow + 1][posColumn] != '#') {
                 maze[posRow][posColumn] = ' ';
                 if (maze[posRow + 1][posColumn] == 'P') {
@@ -269,10 +285,9 @@ void EasyMonsterMove(int posRow, int posColumn) {
                 EasyMonsterMove(posRow, posColumn);
             }
             break;
-        case 3: // D
+        case 4: // D
             if (maze[posRow][posColumn + 1] != '#') {
                 maze[posRow][posColumn] = ' ';
-
                 if (maze[posRow][posColumn + 1] == 'P') {
                     MonsterCatchPlayer();
                     break;
@@ -294,14 +309,14 @@ void HardMonsterMove(int posRow, int posColumn) {
         return;
     }
 
-    int move = rand() % 4;
+    int move = rand() % 4 + 1; // Randomly choose a direction to move
     DistanceMonsterPlayerOld = abs(posRow - PlayerPositionRow) + abs(posColumn -
                                                                      PlayerPositionColumn); // Calculate previous the distance between the monster and the player
+
+    move:
     switch (move) {
-        case 0: // W
-            if (maze[posRow - 1][posColumn] == '#') {
-                HardMonsterMove(posRow, posColumn);
-            } else {
+        case 1: // W
+            if (maze[posRow - 1][posColumn] != '#') {
                 DistanceMonsterPlayer = abs((posRow - 1) - PlayerPositionRow) + abs(posColumn -
                                                                                     PlayerPositionColumn); // Calculate the distance between the monster and the player
                 if (DistanceMonsterPlayer < DistanceMonsterPlayerOld) {
@@ -312,15 +327,11 @@ void HardMonsterMove(int posRow, int posColumn) {
                     }
                     maze[posRow - 1][posColumn] = 'M';
                     MonsterPositionRow--;
-                } else {
-                    HardMonsterMove(posRow, posColumn);
+                    break;
                 }
             }
-            break;
-        case 1: // A
-            if (maze[posRow][posColumn - 1] == '#') {
-                HardMonsterMove(posRow, posColumn);
-            } else {
+        case 2: // A
+            if (maze[posRow][posColumn - 1] != '#') {
                 DistanceMonsterPlayer = abs(posRow - PlayerPositionRow) + abs((posColumn - 1) -
                                                                               PlayerPositionColumn); // Calculate the distance between the monster and the player
                 if (DistanceMonsterPlayer < DistanceMonsterPlayerOld) {
@@ -331,16 +342,11 @@ void HardMonsterMove(int posRow, int posColumn) {
                     }
                     maze[posRow][posColumn - 1] = 'M';
                     MonsterPositionColumn--;
-                }
-                else {
-                    HardMonsterMove(posRow, posColumn);
+                    break;
                 }
             }
-            break;
-        case 2: // S
-            if (maze[posRow + 1][posColumn] == '#') {
-                HardMonsterMove(posRow, posColumn);
-            } else {
+        case 3: // S
+            if (maze[posRow + 1][posColumn] != '#') {
                 DistanceMonsterPlayer = abs((posRow + 1) - PlayerPositionRow) + abs(posColumn -
                                                                                     PlayerPositionColumn); // Calculate the distance between the monster and the player
                 if (DistanceMonsterPlayer < DistanceMonsterPlayerOld) {
@@ -351,16 +357,11 @@ void HardMonsterMove(int posRow, int posColumn) {
                     }
                     maze[posRow + 1][posColumn] = 'M';
                     MonsterPositionRow++;
-                }
-                else {
-                    HardMonsterMove(posRow, posColumn);
+                    break;
                 }
             }
-            break;
-        case 3: // D
-            if (maze[posRow][posColumn + 1] == '#') {
-                HardMonsterMove(posRow, posColumn);
-            } else {
+        case 4: // D
+            if (maze[posRow][posColumn + 1] != '#') {
                 DistanceMonsterPlayer = abs(posRow - PlayerPositionRow) + abs((posColumn + 1) -
                                                                               PlayerPositionColumn); // Calculate the distance between the monster and the player
                 if (DistanceMonsterPlayer < DistanceMonsterPlayerOld) {
@@ -371,18 +372,19 @@ void HardMonsterMove(int posRow, int posColumn) {
                     }
                     maze[posRow][posColumn + 1] = 'M';
                     MonsterPositionColumn++;
-                }
-                else {
-                    HardMonsterMove(posRow, posColumn);
+                    break;
                 }
             }
-            break;
+        default:
+            goto move;
     }
 }
 
 void setInitialPlayerPosition() {
     int i, j;
     bool validCell = false;
+
+    maze[PlayerPositionRow][PlayerPositionColumn] = ' '; // Remove the player from the current position for playing the game again
 
     do {
         i = rand() % (WIDTH - 2) + 1;
@@ -404,6 +406,8 @@ void setInitialPlayerPosition() {
 void setInitialMonsterPosition() {
     int i, j;
     bool validCell = false;
+
+    maze[MonsterPositionRow][MonsterPositionColumn] = ' '; // Remove the monster from the current position for playing the game again
 
     do {
         i = rand() % (WIDTH - 2) + 1;
